@@ -46,11 +46,11 @@ These programs explore the use of signals as an inter-processing communication t
 
   ```./recv_signal          ## Start in one terminal, prints PID upon start```
 
-  ```./send_signal <PID>     # Run in second terminal with PID from recv_signal```
+  ```./send_signal <PID>    ## Run in second terminal with PID from recv_signal```
 
 
 #### Tennis
 
- ```./recv_tennis          # Start in one terminal, prints PID upon start```
+ ```./recv_tennis          ## Start in one terminal, prints PID upon start```
 
- ```./recv_tennis <PID>    # Start in a second terminal to lauch the game```
+ ```./recv_tennis <PID>    ## Start in a second terminal to lauch the game```

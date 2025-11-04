@@ -5,13 +5,15 @@
  * Lab 10 - Signals
  * 
  * Brief summary of program:
- * Sends a signal to the recieving program and passes back and forth with it
- * ten times before exiting
+ * Sends a signal to the recieving program and passes back and forth
+ * Randomly succeeds or fails
+ * Keeps track of score and exits cleanly when a player loses
  * 
  * Compile: gcc -o recv_tennis recv_tennis.c OR make
  * Run: ./recv_tennis in another terminal, then run ./send_tennis
  */
 
+ #define _GNU_SOURCE
  #include <stdio.h>
  #include <stdlib.h>
  #include <signal.h>
@@ -19,27 +21,78 @@
  #include <time.h>
  
  pid_t opponent_pid;
+ int server_score = 0;
+ int receiver_score = 0;
+
+ void print_score()
+ {
+    printf("SCORE - Server: %d | Receiver: %d\n", server_score, receiver_score);
+ }
+
+ void serve_ball()
+ {
+    sleep(1);
+    union sigval val;
+    val.sival_int = 0;
+    printf("Server: Serving the ball\007\n");
+    sigqueue(opponent_pid, SIGUSR1, val);
+ }
 
  void handle_ball(int sig, siginfo_t *info, void *context)
  {
-    int count = info->si_value.sival_int;
-    pid_t sender_pid = info->si_pid;
+    int data = info->si_value.sival_int; // 0 = ball, 1 = server missed
+    pid_t opponent_pid = info->si_pid;
 
-    printf("Server: Recieved ball from %d, count %d\n", sender_pid, count);
-    
-    if (count >= 10)
+    if (data == 1)
     {
-        printf("Server: Game over, final count = %d\n", count);
-        exit(0);
+        server_score++;
+        printf("Receiver missed! Server scores a point\n");
+        print_score();
+
+        if (server_score >= 4)
+        {
+            printf("Server wins the game!\n");
+            exit(0);
+        }
+
+        // Serve again after scoring
+        serve_ball();
+        return;
     }
 
+    // Server tries to return
     sleep(1 + rand() % 2);
+    int miss = (rand() % 10 < 2); // 20% miss chance
 
+    if (miss)
+    {
+        receiver_score++;
+        printf("Server: Missed return. Receiver scores a point\n");
+        print_score();
+        if (receiver_score >= 4)
+        {
+            printf("Receiver wins the game!\n");
+            union sigval val;
+            val.sival_int = 1;
+            sigqueue(opponent_pid, SIGUSR1, val);
+            exit(0);
+        }
+
+        // tell receiver they scored
+        union sigval val;
+        val.sival_int = 1;
+        sigqueue(opponent_pid, SIGUSR1, val);
+
+        serve_ball();
+        return;
+    }
+
+    // successful return
+    printf("Server: Hitting ball back to %d\007\n", opponent_pid);
     union sigval value;
-    value.sival_int = count + 1;
-
-    printf("Server: Hitting ball back to %d, count %d\007\n", opponent_pid, value.sival_int);
+    value.sival_int = 0;
     sigqueue(opponent_pid, SIGUSR1, value);
+    return;
  }
 
  int main(int argc, char *argv[])
@@ -63,7 +116,7 @@
 
     // Serve first ball
     union sigval value;
-    value.sival_int = 1;
+    value.sival_int = 0;
     printf("Server: Serving ball to %d, count %d\a\n", opponent_pid, value.sival_int);
     sigqueue(opponent_pid, SIGUSR1, value);
 

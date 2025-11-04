@@ -8,7 +8,7 @@
  * Uses sigaction with SA_SIGINFO to handle SIGUSR1 signals to print a integer
  * (sival_int) sent with sigqueue from another process.
  * 
- * To test:
+ * Usage:
  * 1. Run this program ./recv_signal
  * 2. Note the printed PID and run send_signal in another terminal.
  */

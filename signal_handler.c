@@ -10,6 +10,10 @@
  *  - removed the exit() call from the signal handler.
  *  - added a global flag so main can exit gracefully after receiving SIGINT
  *  - added PID printout for testing with the kill command.
+ * 
+ * Compile: gcc -o signal_handler signal_handler.c
+ * Run: ./signal_handler
+ * Interupt with CTRL-C or kill <PID> from another terminal
  */
 
 

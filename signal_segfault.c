@@ -4,7 +4,10 @@
  */
 
 /**
+ * File: signal_alarm.c
  * Modified by: Ashlyn Dedert
+ * CPE 2600 111
+ * Lab 10 - Signals
  * 
  * Brief summary of modifications:
  * - added a signal handler for SIGSEGV that prints a message when a segmentation fault occurs

@@ -5,7 +5,10 @@
  * Lab 10 - Signals
  * 
  * Brief summary of program:
+ *  demonstrates the use of sigaction with SA_SIGINFO to catch SIGUSR1
+ *  and print the sender's PID using siginfo_t.
  * 
+ * Trigger with: kill -SIGUSR1 <PID> from another terminal
  */
 
 #define _GNU_SOURCE
@@ -26,12 +29,15 @@ int main()
 {
     struct sigaction sa;
     sigemptyset(&sa.sa_mask);
-    sa.sa_flags = SA_SIGINFO; // important to get siginfo_t populated
+    sa.sa_flags = SA_SIGINFO;
+    sa.sa_sigaction = handler;
+    
     if (sigaction(SIGUSR1, &sa, NULL) == -1) 
     {
         perror("sigaction");
         return 1;
     }
+
     printf("Process PID: %d\n", getpid());
     printf("Waiting for SIGUSR1 signal...\n");
 

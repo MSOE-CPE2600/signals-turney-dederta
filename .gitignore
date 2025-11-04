@@ -50,3 +50,11 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
+recv_signal
+send_signal
+signal_alarm
+signal_handler
+signal_segfault
+signal_sigaction
+recv_tennis
+serve_tennis
